@@ -6,8 +6,8 @@
 %                                                            
  % ----------------------------------------------------------------------- %
  %% 
-close all
-clear all
+% close all
+% clear all
 
 load('C:\Users\유승재\Desktop\true_labels\feature.mat');
 data_label = string(answer(1,1));
