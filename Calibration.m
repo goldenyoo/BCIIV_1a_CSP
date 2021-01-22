@@ -191,9 +191,9 @@ for i = 1:length(fp_l)
 end
 Ql = (1/(length(fp_l)-1))*Ql;
 
-Q = ((length(fp_l)-1)/(length(fp_l)+length(fp_r)-2))*Ql + ((length(fp_r)-1)/(length(fp_l)+length(fp_r)-2))*Qr;
 
-save('C:\Users\유승재\Desktop\true_labels\feature.mat','Mr','Ml','Qr','Ql','P','Q','answer');
+
+save('C:\Users\유승재\Desktop\true_labels\feature.mat','Mr','Ml','Qr','Ql','P','answer');
 
 
 fprintf('Right: %d   Left: %d\n',a-1,b-1);
