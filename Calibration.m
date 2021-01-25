@@ -70,16 +70,12 @@ end
 a = 1; b = 1;
 C_r = zeros(size(cnt_c,1)); C_l = zeros(size(cnt_c,1));
 
-%train test split
-s = rng;
-r = randperm(length(mrk.pos));
+
 
 %% Calculate spatial filter
 
 % Training only for training data set
-for j = 1:length(r)
-%     i = r(1,j);
-    i = j;
+for i = 1:length(mrk.pos)  
     
     % One trial data
     E = cnt_c(:,mrk.pos(1,i):mrk.pos(1,i)+350);   
@@ -142,10 +138,8 @@ P = (U_new'*W)';
 fp_r = [];
 fp_l = [];
 
-for j = 1:length(r)
-%     i = r(1,j);
-    i = j;
-    
+for i = 1:length(mrk.pos)
+
     % One trial data
     E = cnt_c(:,mrk.pos(1,i):mrk.pos(1,i)+350);    
     
@@ -196,7 +190,7 @@ Ql = (1/(length(fp_l)-1))*Ql;
 save('C:\Users\유승재\Desktop\true_labels\feature.mat','Mr','Ml','Qr','Ql','P','answer');
 
 
-fprintf('Right: %d   Left: %d\n',a-1,b-1);
+fprintf('Data label: %s\n',data_label);
 
 run("Evaluation.m");
 % ----------------------------------------------------------------------- %

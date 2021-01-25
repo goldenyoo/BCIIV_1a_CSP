@@ -53,35 +53,31 @@ if referencing ~= 0
     end
 end
 
-
+cnt_c = [cnt_c(25,:); cnt_c(29,:)]; 
 
 %% 
 f1 = figure;
 f2 = figure;
-f3 = figure;
-f4 = figure;
 % for i = 1:length(mrk.pos)  
 for i = 1:4 
     
     % One trial data
-    E = cnt_c(:,mrk.pos(1,i):mrk.pos(1,i)+350); 
-    E = E.^2;
-    E = sum(E);
+    E = cnt_c(:,mrk.pos(1,i):mrk.pos(1,i)+350);   
     
     %Plot freqeuncy analysis
-    if i == 1
-        figure(f1);        
-     elseif i==2
-        figure(f2);
-     elseif i==3
-         figure(f3);
-     else
-         figure(f4);
-    end 
-    subplot(2,1,1);
-    sinad(E(1,:),100);
-%     subplot(2,2,3);
-%     sinad(E(2,:),100);
+    if i ==1
+        figure(f1)
+        subplot(2,2,1);
+        sinad(E(1,:),100);
+        subplot(2,2,3);
+        sinad(E(2,:),100);
+    else
+        figure(f2)
+        subplot(2,2,1);
+        sinad(E(1,:),100);
+        subplot(2,2,3);
+        sinad(E(2,:),100);
+    end
     % According to its class, divide calculated covariance
     if mrk.y(1,i) == 1 
         %
@@ -107,23 +103,17 @@ for i = 1:4
     
     % One trial data
     E = cnt_c(:,mrk.pos(1,i):mrk.pos(1,i)+350);   
-    E = E.^2;
-    E = sum(E);
     
     %Plot freqeuncy analysis
      if i == 1
         figure(f1);        
-     elseif i==2
-        figure(f2);
-     elseif i==3
-         figure(f3);
-     else
-         figure(f4);
+     elseif i
+        figure(f2);        
     end 
-    subplot(2,1,2);
+    subplot(2,2,2);
     sinad(E(1,:),100);
-%     subplot(2,2,4);
-%     sinad(E(2,:),100);
+    subplot(2,2,4);
+    sinad(E(2,:),100);
     % According to its class, divide calculated covariance
     if mrk.y(1,i) == 1 
         %
@@ -132,5 +122,3 @@ for i = 1:4
     end
 end
 % end
-fprintf('Data label: %s\n',data_label);
-fprintf('Filter order: %d\n',order);
