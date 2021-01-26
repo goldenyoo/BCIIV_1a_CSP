@@ -2,7 +2,7 @@
 %    File_name: Evaluation.m
 %    Programmer: Seungjae Yoo                             
 %                                           
-%    Last Modified: 2020_01_22                            
+%    Last Modified: 2020_01_26                           
 %                                                            
  % ----------------------------------------------------------------------- %
  %% 
@@ -76,6 +76,8 @@ if referencing ~= 0
         cnt_n = myLAP(cnt,nfo);
         cnt_c = cnt_n(3:55,:);
     end
+else
+    cnt_c = cnt(3:55,:);
 end
 
 clear cnt cnt_n
@@ -93,7 +95,7 @@ end
 
 
 %% 
-f1 = figure;
+% f1 = figure;
 % f2 = figure;
 score = [];
 predictions = [];
@@ -115,8 +117,8 @@ for j = 1 : length(B)
     fp = fp';
     
     % Graphical represent
-     figure(f1)
-     scatter3(Z(1,:), Z(size(cnt_c,1),:),Z(2,:),'b'); hold on;
+%      figure(f1)
+%      scatter3(Z(1,:), Z(size(cnt_c,1),:),Z(2,:),'b'); hold on;
 %      figure(f2)
 %      scatter3(fp(1),fp(2),fp(6),'b'); hold on;
        
@@ -151,8 +153,8 @@ for j = 1 : length(D)
     fp = fp';
     
     % Graphical represent
-     figure(f1)
-     scatter3(Z(1,:), Z(size(cnt_c,1),:),Z(2,:),'r'); hold on;
+%      figure(f1)
+%      scatter3(Z(1,:), Z(size(cnt_c,1),:),Z(2,:),'r'); hold on;
 %      figure(f2)
 %      scatter3(fp(1),fp(2),fp(6),'r'); hold on;
        

@@ -1,11 +1,3 @@
-% ----------------------------------------------------------------------- %
-%    File_name: myLAP.m
-%    Programmer: Seungjae Yoo                             
-%                                           
-%    Last Modified: 2020_01_26                           
-%                                                            
- % ----------------------------------------------------------------------- %
-%% 
 function cnt_n = myLAP(cnt,nfo)
 
 sap = {"F5",["F3","FC5"]; "F3",["F5","AF3","F1","FC3"]; "F1",["F3","Fz","FC1"]; "Fz",["F1","F2","FCz"]; "F2",["Fz","F4","FC2"]; ...
@@ -27,27 +19,36 @@ for i = 1:size(sap,1)
         for j = 1:length(sap{i,2})
             index_sub = find(nfo.clab == sap{i,2}(j));            
             if isempty(index_sub), error("Cant' find %s",sap{i,2}(j)); end
-            sap_n{i,2}(j) = index_sub;       
+            sap_n
+       
         end
-end
+        
+    end
 %%
-% fprintf('Processing LAP.....\n');
 cnt_n = zeros(size(cnt,1),size(cnt,2));
 
 for t = 1: size(cnt,2)
-    
-    for i = 1:size(sap_n,1)
-        ind_er = sap_n{i,1};  
-        V_er = cnt(ind_er,t);
-        V_sub = 0;
-        tmp = length(sap_n{i,2});
-        for j = 1:length(sap_n{i,2})
-            ind_sub = sap_n{i,2}(j);         
-            V_sub = V_sub + cnt(ind_sub,t);
-        end
-        V_sub = V_sub/tmp;
+    if mod(t,10000)==0, fprintf('Processing LAP..... %d\n',round(100*t/size(cnt,2))); end
+    index_er = 0;
+    index_sub = 0;
+    for i = 1:size(sap,1)
+        index_er = find(nfo.clab == sap{i,1});
         
-        cnt_n(ind_er,t) = V_er - V_sub;
+        if isempty(index_er), error("Cant' find %s",sap{i,1}); end
+        
+        V_er = cnt(index_er,t);
+        V_sub = 0;
+        
+        for j = 1:length(sap{i,2})
+            index_sub = find(nfo.clab == sap{i,2}(j));
+            
+            if isempty(index_sub), error("Cant' find %s",sap{i,2}(j)); end
+            
+            V_sub = V_sub + cnt(index_sub,t);
+        end
+        V_sub = V_sub/length(sap{i,2});
+        
+        cnt_n(index_er,t) = V_er - V_sub;
     end
 end
 

@@ -2,7 +2,7 @@
 %    File_name: Calibration.m
 %    Programmer: Seungjae Yoo                             
 %                                           
-%    Last Modified: 2020_01_22                            
+%    Last Modified: 2020_01_26                            
 %                                                            
  % ----------------------------------------------------------------------- %
 
@@ -59,6 +59,8 @@ if referencing ~= 0
         cnt_n = myLAP(cnt,nfo);
         cnt_c = cnt_n(3:55,:);
     end
+else
+    cnt_c = cnt(3:55,:);
 end
 
 clear cnt cnt_n
