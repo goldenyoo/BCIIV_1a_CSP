@@ -35,26 +35,34 @@ load(FILENAME);
 cnt= 0.1*double(cnt);
 cnt = cnt';
 
-% Exclude electrode (AF3, AF4, O1, O2, PO1, PO2)
-cnt_c = cnt(3:55,:);
-
 %% Preprocessing
 if referencing ~= 0
     %%% Calculate differential voltage
-    for i = 1 : size(cnt_c,1)
-        cnt_c(i,:) = cnt_c(i,:) - cnt(29,:);
+    for i = 1 : size(cnt,1)
+        cnt(i,:) = cnt(i,:) - cnt(29,:);
     end
 
-    
-    if referencing == 1 % common average
+    % common average
+    if referencing == 1 
+        fprintf('Re_referencig (CAR)\n');
+        
+        % Exclude electrode (AF3, AF4, O1, O2, PO1, PO2)
+        cnt_c = cnt(3:55,:);
+        
         Means = (1/size(cnt_c,1))*sum(cnt_c);
         for i = 1 : size(cnt_c,1)
             cnt_c(i,:) = cnt_c(i,:) - Means;
         end
-    elseif referencing == 2 % LAP
-        %%%
+     % LAP   
+    elseif referencing == 2 
+        fprintf('Re_referencig (LAP)\n');
+        cnt_n = myLAP(cnt,nfo);
+        cnt_c = cnt_n(3:55,:);
     end
 end
+
+clear cnt cnt_n
+
 %% 
 %BPF Design
 bpFilt = designfilt('bandpassfir','FilterOrder',order, ...
@@ -69,8 +77,6 @@ end
 %% 
 a = 1; b = 1;
 C_r = zeros(size(cnt_c,1)); C_l = zeros(size(cnt_c,1));
-
-
 
 %% Calculate spatial filter
 
@@ -185,12 +191,13 @@ for i = 1:length(fp_l)
 end
 Ql = (1/(length(fp_l)-1))*Ql;
 
-
-
 save('C:\Users\유승재\Desktop\true_labels\feature.mat','Mr','Ml','Qr','Ql','P','answer');
 
 
 fprintf('Data label: %s\n',data_label);
+fprintf('Filter order: %d\n',order);
+
+clear all
 
 run("Evaluation.m");
 % ----------------------------------------------------------------------- %

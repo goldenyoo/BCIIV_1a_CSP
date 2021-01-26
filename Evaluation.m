@@ -46,6 +46,7 @@ for i=1:length(true_y)-1
     end
 end
 
+clear true_y
 %% 
 % Load file
 FILENAME = strcat('C:\Users\유승재\Desktop\Motor Imagery EEG data\BCICIV_1_mat\BCICIV_eval_ds1',data_label,'.mat');
@@ -55,26 +56,29 @@ load(FILENAME);
 cnt= 0.1*double(cnt);
 cnt = cnt';
 
-% Exclude electrode (AF3, AF4, O1, O2, PO1, PO2)
-cnt_c = cnt(3:55,:);
-
-%% Preprocessing
 if referencing ~= 0
     %%% Calculate differential voltage
-    for i = 1 : size(cnt_c,1)
-        cnt_c(i,:) = cnt_c(i,:) - cnt(29,:);
+    for i = 1 : size(cnt,1)
+        cnt(i,:) = cnt(i,:) - cnt(29,:);
     end
 
-    
-    if referencing == 1 % common average
+    % common average
+    if referencing == 1 
+        % Exclude electrode (AF3, AF4, O1, O2, PO1, PO2)
+        cnt_c = cnt(3:55,:);
+        
         Means = (1/size(cnt_c,1))*sum(cnt_c);
         for i = 1 : size(cnt_c,1)
             cnt_c(i,:) = cnt_c(i,:) - Means;
         end
-    elseif referencing == 2 % LAP
-        %%%
+     % LAP   
+    elseif referencing == 2 
+        cnt_n = myLAP(cnt,nfo);
+        cnt_c = cnt_n(3:55,:);
     end
 end
+
+clear cnt cnt_n
 
 %% 
 %BPF Design
