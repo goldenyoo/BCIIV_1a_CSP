@@ -38,7 +38,7 @@ for i = 1:length(ref_method)
         [Mr,Ml,Qr,Ql,P] = Calib(answer);
         tmp = Eval(answer,Mr,Ml,Qr,Ql,P);
         output(i,j) = tmp;
-        fprintf('----> score: %f\n',tmp);
+        fprintf(' ----> score: %f\n',tmp);
     end
     fprintf('\n');
 end
