@@ -8,12 +8,12 @@
 function [Mr,Ml,Qr,Ql,P] = Calib(answer)
 
 % Input parameters
-data_label = string(answer(1,1));   % Calib_ds1 + "data_label"
+data_label = string(answer(1,1));   
 m = double(string(answer(2,1))); % feature vector will have length (2m)
-low_f = double(string(answer(3,1)));
-high_f = double(string(answer(4,1)));
-referencing = double(string(answer(5,1)));
-order = double(string(answer(6,1)));
+low_f = double(string(answer(3,1))); % Low cutoff freq
+high_f = double(string(answer(4,1))); % High cutoff freq
+referencing = double(string(answer(5,1))); % Non(0), CAR(1), LAP(2)
+order = double(string(answer(6,1))); % Filter order
 
 % Load file
 FILENAME = strcat('C:\Users\유승재\Desktop\Motor Imagery EEG data\BCICIV_1_mat\BCICIV_calib_ds1',data_label,'.mat');
@@ -32,19 +32,18 @@ if referencing ~= 0
     
     % common average
     if referencing == 1        
-        % Exclude electrode (AF3, AF4, O1, O2, PO1, PO2)
-        cnt_c = cnt(3:55,:);        
+        cnt_c = cnt(3:55,:); % Exclude electrode (AF3, AF4, O1, O2, PO1, PO2)     
         Means = (1/size(cnt_c,1))*sum(cnt_c);
         for i = 1 : size(cnt_c,1)
-            cnt_c(i,:) = cnt_c(i,:) - Means;
+            cnt_c(i,:) = cnt_c(i,:) - Means; % CAR
         end
     % LAP
     elseif referencing == 2
-        cnt_n = myLAP(cnt,nfo);
-        cnt_c = cnt_n(3:55,:);
+        cnt_n = myLAP(cnt,nfo); % Laplacian
+        cnt_c = cnt_n(3:55,:); % Exclude electrode (AF3, AF4, O1, O2, PO1, PO2)
     end
 else
-    cnt_c = cnt(3:55,:);
+    cnt_c = cnt(3:55,:); % Exclude electrode (AF3, AF4, O1, O2, PO1, PO2)
 end
 
 clear cnt cnt_n
@@ -60,11 +59,9 @@ for i = 1:size(cnt_c,1)
     cnt_c(i,:) = filtfilt(bpFilt, cnt_c(i,:));
 end
 
-%%
+%% Calculate spatial filter
 a = 1; b = 1;
 C_r = zeros(size(cnt_c,1)); C_l = zeros(size(cnt_c,1));
-
-%% Calculate spatial filter
 
 % Training only for training data set
 for i = 1:length(mrk.pos)
@@ -75,8 +72,7 @@ for i = 1:length(mrk.pos)
     %Centering
     %     Means = mean(E,2);
     %     E = E - diag(Means)*ones(size(E,1),size(E,2));
-    
-    
+        
     % Covariance 연산
     C = E*E'/ trace( E*E');
     
@@ -124,7 +120,6 @@ U_new = U(:,ind);
 % Total Projection matrix,   Z = P'*X
 P = (U_new'*W)';
 
-
 %% Calculate feature vector
 
 fp_r = [];
@@ -137,8 +132,7 @@ for i = 1:length(mrk.pos)
     
     %     % Centering
     %     Means = mean(E,2);
-    %     E = E - diag(Means)*ones(size(E,1),size(E,2));
-    
+    %     E = E - diag(Means)*ones(size(E,1),size(E,2));    
     
     % Project data using calculated spatial filter
     Z = P'*E;
@@ -146,7 +140,6 @@ for i = 1:length(mrk.pos)
     % Feature vector
     tmp_ind = size(Z,1);
     Z_reduce = [Z(1:m,:); Z(tmp_ind-(m-1):tmp_ind,:)];
-    %     var_vector = [var(Z(1,:)) var(Z(2,:)) var(Z(size(Z,1)-1,:)) var(Z(size(Z,1),:))];
     var_vector = var(Z_reduce,0,2)';
     var_vector = (1/sum(var_vector))*var_vector;
     

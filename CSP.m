@@ -2,11 +2,11 @@
 %    File_name: CSP.m
 %    Programmer: Seungjae Yoo                             
 %                                           
-%    Last Modified: 2020_01_26                            
+%    Last Modified: 2020_01_27                            
 %                                                            
  % ----------------------------------------------------------------------- %
 
-%% Call raw data
+%% Get input parameter from user
 close all
 clear all
 
@@ -19,16 +19,14 @@ answer = inputdlg(prompt,dlgtitle,dims,definput);
 % Error detection
 if isempty(answer), error("Not enough input parameters."); end
 
+%% Conditions
+% Rereferencing method 
+ref_method = [0 1 2]; % Non(0), CAR(1), LAP(2)
 
-
-%% 
-% Input parameters
-ref_method = [0 1 2];
+% Filter order
 filt_ord = [10 15 20 25 30];
 
-%% 
-
-
+%% CSP 
 for i = 1:length(ref_method)
     for j = 1:length(filt_ord)
         answer(5,1) = {ref_method(i)};
@@ -42,6 +40,8 @@ for i = 1:length(ref_method)
     end
     fprintf('\n');
 end
+
+%% Output present
 
 fprintf('Data_Label: %s\n',string(answer(1,1)));
 fprintf('BPF cutoff freq: %s ~ %s\n',string(answer(3,1)),string(answer(4,1)));
