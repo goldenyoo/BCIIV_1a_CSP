@@ -1,24 +1,21 @@
 % ----------------------------------------------------------------------- %
-%    File_name: Evaluation.m
+%    File_name: Eval.m
 %    Programmer: Seungjae Yoo                             
 %                                           
-%    Last Modified: 2020_01_26                           
+%    Last Modified: 2020_01_27                           
 %                                                            
  % ----------------------------------------------------------------------- %
- %% 
-% close all
-% clear all
+function output = Eval(answer,Mr,Ml,Qr,Ql,P)
+data_label = string(answer(1,1));   % Calib_ds1 + "data_label"
+m = double(string(answer(2,1))); % feature vector will have length (2m)
+low_f = double(string(answer(3,1)));
+high_f = double(string(answer(4,1)));
+referencing = double(string(answer(5,1)));
+order = double(string(answer(6,1)));
 
-
-load('C:\Users\유승재\Desktop\true_labels\feature.mat');
-data_label = string(answer(1,1));
-m = double(string(answer(2,1)));
-referencing = double(string(answer(3,1)));
-order = double(string(answer(4,1)));
-
+%% 
 FILENAME = strcat('C:\Users\유승재\Desktop\true_labels\BCICIV_eval_ds1',data_label,'_1000Hz_true_y.mat');
 load(FILENAME);
-%% 
 
 A=[];
 B=[];
@@ -85,7 +82,7 @@ clear cnt cnt_n
 %% 
 %BPF Design
 bpFilt = designfilt('bandpassfir','FilterOrder',order, ...
-         'CutoffFrequency1',8,'CutoffFrequency2',30, ...
+         'CutoffFrequency1',low_f,'CutoffFrequency2',high_f, ...
          'SampleRate',100);
 
 % Apply BPF
@@ -123,7 +120,7 @@ for j = 1 : length(B)
 %      scatter3(fp(1),fp(2),fp(6),'b'); hold on;
        
     % Run classifier
-    [check, prediction] = myClassifier(fp);
+    [check, prediction] = myClassifier(fp,Mr,Ml,Qr,Ql);
     if prediction == -1
         score = [score 1];
         
@@ -159,7 +156,7 @@ for j = 1 : length(D)
 %      scatter3(fp(1),fp(2),fp(6),'r'); hold on;
        
     % Run classifier
-    [check, prediction] = myClassifier(fp);
+    [check, prediction] = myClassifier(fp,Mr,Ml,Qr,Ql);
     if prediction == 1
         score = [score 1];
         
@@ -171,6 +168,5 @@ for j = 1 : length(D)
     checks = [checks check];
     
 end
-
-
-fprintf('Score: %g\n',100*sum(score)/length(score));
+output = 100*sum(score)/length(score);
+end

@@ -1,31 +1,19 @@
 % ----------------------------------------------------------------------- %
-%    File_name: Calibration.m
+%    File_name: Calib.m
 %    Programmer: Seungjae Yoo                             
 %                                           
-%    Last Modified: 2020_01_26                            
+%    Last Modified: 2020_01_27                           
 %                                                            
  % ----------------------------------------------------------------------- %
-
-%% Call raw data
-close all
-clear all
-
-% Ask user for input parameters
-prompt = {'Data label: ', 'Feature vector length: ', 'Re-referencing: 0 (Non),1 (CAR), 2 (LAP)', 'BFP order'};
-dlgtitle = 'Input';
-dims = [1 50];
-definput = {'a', '3', '1','20'};
-answer = inputdlg(prompt,dlgtitle,dims,definput);
-
-
-% Error detection
-if isempty(answer), error("Not enough input parameters."); end
+function [Mr,Ml,Qr,Ql,P] = Calib(answer)
 
 % Input parameters
 data_label = string(answer(1,1));   % Calib_ds1 + "data_label"
 m = double(string(answer(2,1))); % feature vector will have length (2m)
-referencing = double(string(answer(3,1)));
-order = double(string(answer(4,1)));
+low_f = double(string(answer(3,1)));
+high_f = double(string(answer(4,1)));
+referencing = double(string(answer(5,1)));
+order = double(string(answer(6,1)));
 
 % Load file
 FILENAME = strcat('C:\Users\유승재\Desktop\Motor Imagery EEG data\BCICIV_1_mat\BCICIV_calib_ds1',data_label,'.mat');
@@ -41,21 +29,17 @@ if referencing ~= 0
     for i = 1 : size(cnt,1)
         cnt(i,:) = cnt(i,:) - cnt(29,:);
     end
-
+    
     % common average
-    if referencing == 1 
-        fprintf('Re_referencig (CAR)\n');
-        
+    if referencing == 1        
         % Exclude electrode (AF3, AF4, O1, O2, PO1, PO2)
-        cnt_c = cnt(3:55,:);
-        
+        cnt_c = cnt(3:55,:);        
         Means = (1/size(cnt_c,1))*sum(cnt_c);
         for i = 1 : size(cnt_c,1)
             cnt_c(i,:) = cnt_c(i,:) - Means;
         end
-     % LAP   
-    elseif referencing == 2 
-        fprintf('Re_referencig (LAP)\n');
+    % LAP
+    elseif referencing == 2
         cnt_n = myLAP(cnt,nfo);
         cnt_c = cnt_n(3:55,:);
     end
@@ -65,39 +49,39 @@ end
 
 clear cnt cnt_n
 
-%% 
+%%
 %BPF Design
 bpFilt = designfilt('bandpassfir','FilterOrder',order, ...
-         'CutoffFrequency1',8,'CutoffFrequency2',30, ...
-         'SampleRate',100);
+    'CutoffFrequency1',low_f,'CutoffFrequency2',high_f, ...
+    'SampleRate',100);
 
 % Apply BPF
 for i = 1:size(cnt_c,1)
     cnt_c(i,:) = filtfilt(bpFilt, cnt_c(i,:));
 end
 
-%% 
+%%
 a = 1; b = 1;
 C_r = zeros(size(cnt_c,1)); C_l = zeros(size(cnt_c,1));
 
 %% Calculate spatial filter
 
 % Training only for training data set
-for i = 1:length(mrk.pos)  
+for i = 1:length(mrk.pos)
     
     % One trial data
-    E = cnt_c(:,mrk.pos(1,i):mrk.pos(1,i)+350);   
+    E = cnt_c(:,mrk.pos(1,i):mrk.pos(1,i)+350);
     
     %Centering
-%     Means = mean(E,2);
-%     E = E - diag(Means)*ones(size(E,1),size(E,2));
+    %     Means = mean(E,2);
+    %     E = E - diag(Means)*ones(size(E,1),size(E,2));
     
-      
+    
     % Covariance 연산
     C = E*E'/ trace( E*E');
     
     % According to its class, divide calculated covariance
-    if mrk.y(1,i) == 1 
+    if mrk.y(1,i) == 1
         C_r = C_r+C;
         a = a+1;
     else
@@ -141,31 +125,31 @@ U_new = U(:,ind);
 P = (U_new'*W)';
 
 
-%% Calculate feature vector 
+%% Calculate feature vector
 
 fp_r = [];
 fp_l = [];
 
 for i = 1:length(mrk.pos)
-
-    % One trial data
-    E = cnt_c(:,mrk.pos(1,i):mrk.pos(1,i)+350);    
     
-%     % Centering
-%     Means = mean(E,2);
-%     E = E - diag(Means)*ones(size(E,1),size(E,2));
-
-
+    % One trial data
+    E = cnt_c(:,mrk.pos(1,i):mrk.pos(1,i)+350);
+    
+    %     % Centering
+    %     Means = mean(E,2);
+    %     E = E - diag(Means)*ones(size(E,1),size(E,2));
+    
+    
     % Project data using calculated spatial filter
     Z = P'*E;
     
     % Feature vector
     tmp_ind = size(Z,1);
     Z_reduce = [Z(1:m,:); Z(tmp_ind-(m-1):tmp_ind,:)];
-%     var_vector = [var(Z(1,:)) var(Z(2,:)) var(Z(size(Z,1)-1,:)) var(Z(size(Z,1),:))];
+    %     var_vector = [var(Z(1,:)) var(Z(2,:)) var(Z(size(Z,1)-1,:)) var(Z(size(Z,1),:))];
     var_vector = var(Z_reduce,0,2)';
     var_vector = (1/sum(var_vector))*var_vector;
-        
+    
     fp = log(var_vector);
     fp = fp';
     
@@ -193,15 +177,7 @@ for i = 1:length(fp_l)
 end
 Ql = (1/(length(fp_l)-1))*Ql;
 
-save('C:\Users\유승재\Desktop\true_labels\feature.mat','Mr','Ml','Qr','Ql','P','answer');
-
-
-fprintf('Data label: %s\n',data_label);
-fprintf('Filter order: %d\n',order);
-
-clear all
-
-run("Evaluation.m");
+end
 % ----------------------------------------------------------------------- %
 %                               EOF
 % ----------------------------------------------------------------------- %
