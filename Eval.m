@@ -16,7 +16,7 @@ order = double(string(answer(7,1))); % Filter order
 
 
 %% Call true label
-FILENAME = strcat('C:\Users\유승재\Desktop\true_labels\BCICIV_eval_ds1',data_label,'_1000Hz_true_y.mat');
+FILENAME = strcat('C:\Users\유승재\Desktop\Motor Imagery EEG data\true_labels\BCICIV_eval_ds1',data_label,'_1000Hz_true_y.mat');
 load(FILENAME);
 
 A=[];
