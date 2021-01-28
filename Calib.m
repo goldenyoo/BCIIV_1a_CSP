@@ -5,18 +5,27 @@
 %    Last Modified: 2020_01_27                           
 %                                                            
  % ----------------------------------------------------------------------- %
-function [Mr,Ml,Qr,Ql,P] = Calib(answer)
+function [Mr,Ml,Qr,Ql,P] = Calib(answer,ref)
 
 % Input parameters
 data_label = string(answer(1,1));   
 m = double(string(answer(2,1))); % feature vector will have length (2m)
 low_f = double(string(answer(3,1))); % Low cutoff freq
 high_f = double(string(answer(4,1))); % High cutoff freq
-referencing = double(string(answer(5,1))); % Non(0), CAR(1), LAP(2)
-order = double(string(answer(6,1))); % Filter order
+sampling_rate = double(string(answer(5,1)));
+referencing = double(string(answer(6,1))); % Non(0), CAR(1), LAP(2)
+order = double(string(answer(7,1))); % Filter order
 
 % Load file
-FILENAME = strcat('C:\Users\유승재\Desktop\Motor Imagery EEG data\BCICIV_1_mat\BCICIV_calib_ds1',data_label,'.mat');
+if sampling_rate == 0
+    FILENAME = strcat('C:\Users\유승재\Desktop\Motor Imagery EEG data\BCICIV_1_mat\BCICIV_calib_ds1',data_label,'.mat');
+    chunk = 350;
+    fs = 100;
+else
+    FILENAME = strcat('C:\Users\유승재\Desktop\Motor Imagery EEG data\BCICIV_1calib_1000Hz_mat\BCICIV_calib_ds1',data_label,'_1000Hz.mat');
+    chunk = 3500;
+    fs = 1000;
+end
 load(FILENAME);
 
 % Data rescale
@@ -27,7 +36,7 @@ cnt = cnt';
 if referencing ~= 0
     %%% Calculate differential voltage
     for i = 1 : size(cnt,1)
-        cnt(i,:) = cnt(i,:) - cnt(29,:);
+        cnt(i,:) = cnt(i,:) - cnt(ref,:);
     end
     
     % common average
@@ -43,6 +52,11 @@ if referencing ~= 0
         cnt_c = cnt_n(3:55,:); % Exclude electrode (AF3, AF4, O1, O2, PO1, PO2)
     end
 else
+        %%% Calculate differential voltage
+    for i = 1 : size(cnt,1)
+        cnt(i,:) = cnt(i,:) - cnt(ref,:);
+    end
+    
     cnt_c = cnt(3:55,:); % Exclude electrode (AF3, AF4, O1, O2, PO1, PO2)
 end
 
@@ -52,7 +66,7 @@ clear cnt cnt_n
 %BPF Design
 bpFilt = designfilt('bandpassfir','FilterOrder',order, ...
     'CutoffFrequency1',low_f,'CutoffFrequency2',high_f, ...
-    'SampleRate',100);
+    'SampleRate',fs);
 
 % Apply BPF
 for i = 1:size(cnt_c,1)
@@ -67,7 +81,7 @@ C_r = zeros(size(cnt_c,1)); C_l = zeros(size(cnt_c,1));
 for i = 1:length(mrk.pos)
     
     % One trial data
-    E = cnt_c(:,mrk.pos(1,i):mrk.pos(1,i)+350);
+    E = cnt_c(:,mrk.pos(1,i):mrk.pos(1,i)+chunk);
     
     %Centering
     %     Means = mean(E,2);
@@ -128,7 +142,7 @@ fp_l = [];
 for i = 1:length(mrk.pos)
     
     % One trial data
-    E = cnt_c(:,mrk.pos(1,i):mrk.pos(1,i)+350);
+    E = cnt_c(:,mrk.pos(1,i):mrk.pos(1,i)+chunk);
     
     %     % Centering
     %     Means = mean(E,2);
