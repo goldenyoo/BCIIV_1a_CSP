@@ -88,29 +88,11 @@ while i+150 < size(cnt_c,2)
     
     [check, prediction] = myClassifier(fp,M0,M12,Q0,Q12);
     if prediction == 1
-        myLabel(1,i:i+150) = 0;
-    else
-        Z = P_1_vs_2'*E;
-        
-        % Feature vector
-        tmp_ind = size(Z,1);
-        Z_reduce = [Z(1:m,:); Z(tmp_ind-(m-1):tmp_ind,:)];
-        
-        var_vector = var(Z_reduce,0,2)';
-        var_vector = (1/sum(var_vector))*var_vector;
-        
-        fp = log(var_vector);
-        fp = fp';
-        
-        [check, prediction1] = myClassifier(fp,M1,M2,Q1,Q2);
-        if prediction1 == 1
-            myLabel(1,i:i+150) = 1;
-        else
-            myLabel(1,i:i+150) = -1;
-        end
-    end
-    i = i+120;
+        myLabel()
 end
+
+
+
 
 end
 % ----------------------------------------------------------------------- %

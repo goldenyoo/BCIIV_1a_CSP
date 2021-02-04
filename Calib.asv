@@ -5,7 +5,7 @@
 %    Last Modified: 2020_02_04                           
 %                                                            
  % ----------------------------------------------------------------------- %
-function [M0,M12,M1,M2,Q0,Q12,Q1,Q2,P_0_vs_12,P_1_vs_2] = Calib(answer,ref)
+function [Mr,Ml,Qr,Ql,P] = Calib(answer,ref)
 
 % Input parameters
 data_label = string(answer(1,1));   
