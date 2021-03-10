@@ -14,17 +14,17 @@ clear all
 prompt = {'Data label: ', 'Feature vector length: ', 'low cutoff freq', 'high cutoff freq','sampling rate: 100Hz (0), 1kHz (1)'};
 dlgtitle = 'Input';
 dims = [1 50];
-definput = {'a', '3','8','30','0'};
+definput = {'a', '2','8','30','0'};
 answer = inputdlg(prompt,dlgtitle,dims,definput);
 % Error detection
 if isempty(answer), error("Not enough input parameters."); end
 
 %% Conditions
 % Rereferencing method 
-ref_method = [0 1 2]; % Non(0), CAR(1), LAP(2)
+ref_method = [0 ]; % Non(0), CAR(1), LAP(2)
 
 % Filter order
-filt_ord = [10 15 20 25 30];
+filt_ord = [10];
 
 % Reference electrode number
 ref = 29;        %%%%%%%%%%%%%%%%%%%%%%%%%%%%% Change
