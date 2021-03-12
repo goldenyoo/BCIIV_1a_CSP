@@ -124,7 +124,7 @@ Sa = W*C_r*W';
 Sb = W*C_l*W';
 
 % EVD for transformed covariance
-[U, phsi] = eig(Sa);
+[U, phsi] = eig(Sa,Sa+Sb);
 
 % sort
 [d, ind] = sort(abs(diag(phsi)),'descend');

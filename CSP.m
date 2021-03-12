@@ -21,10 +21,11 @@ if isempty(answer), error("Not enough input parameters."); end
 
 %% Conditions
 % Rereferencing method 
-ref_method = [0 ]; % Non(0), CAR(1), LAP(2)
+ref_method = [0 1 2]; % Non(0), CAR(1), LAP(2)
 
 % Filter order
 filt_ord = [10];
+
 
 % Reference electrode number
 ref = 29;        %%%%%%%%%%%%%%%%%%%%%%%%%%%%% Change
@@ -34,12 +35,13 @@ for i = 1:length(ref_method)
     for j = 1:length(filt_ord)
         answer(6,1) = {ref_method(i)};
         answer(7,1) = {filt_ord(j)};
-        fprintf('Re-referencing: %d',ref_method(i));
-        fprintf(' filter_order: %d',filt_ord(j));
+%         fprintf('Re-referencing: %d',ref_method(i));
+%         fprintf(' filter_order: %d',filt_ord(j));
         [Mr,Ml,Qr,Ql,P] = Calib(answer,ref);
-        tmp = Eval(answer,Mr,Ml,Qr,Ql,P,ref);
-        output(i,j) = tmp;
-        fprintf(' ----> score: %f\n',tmp);
+        predictions = Eval(answer,Mr,Ml,Qr,Ql,P,ref);
+        [score, total, tmp] = Check(answer,predictions);
+        output(i,j) = 100*score/total;
+        fprintf(' ----> score: %f\n',100*score/total);
     end
     fprintf('\n');
 end
