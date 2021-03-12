@@ -24,7 +24,7 @@ if isempty(answer), error("Not enough input parameters."); end
 ref_method = [0 1 2]; % Non(0), CAR(1), LAP(2)
 
 % Filter order
-filt_ord = [1 2 3 4 5 6 7 8 9 10];
+filt_ord = [10];
 
 
 % Reference electrode number

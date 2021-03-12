@@ -19,7 +19,7 @@ order = double(string(answer(7,1))); % Filter order
 % Load file
 if sampling_rate == 0
     FILENAME = strcat('C:\Users\유승재\Desktop\Motor Imagery EEG data\BCICIV_1_mat\BCICIV_calib_ds1',data_label,'.mat');
-    chunk = 350;
+    chunk = 200;
     fs = 100;
 else
     FILENAME = strcat('C:\Users\유승재\Desktop\Motor Imagery EEG data\BCICIV_1calib_1000Hz_mat\BCICIV_calib_ds1',data_label,'_1000Hz.mat');
@@ -80,23 +80,24 @@ C_r = zeros(size(cnt_c,1)); C_l = zeros(size(cnt_c,1));
 % Training only for training data set
 for i = 1:length(mrk.pos)
     
-    % One trial data
-    E = cnt_c(:,mrk.pos(1,i):mrk.pos(1,i)+chunk);
-    
-    %Centering
-    %     Means = mean(E,2);
-    %     E = E - diag(Means)*ones(size(E,1),size(E,2));
+    for k = 1:2
+        E = cnt_c(:,mrk.pos(1,i)+chunk*(k-1):mrk.pos(1,i)+chunk*k);
         
-    % Covariance 연산
-    C = E*E'/ trace( E*E');
-    
-    % According to its class, divide calculated covariance
-    if mrk.y(1,i) == 1
-        C_r = C_r+C;
-        a = a+1;
-    else
-        C_l = C_l+C;
-        b = b+1;
+        %Centering
+        %     Means = mean(E,2);
+        %     E = E - diag(Means)*ones(size(E,1),size(E,2));
+        
+        % Covariance 연산
+        C = E*E'/ trace( E*E');
+        
+        % According to its class, divide calculated covariance
+        if mrk.y(1,i) == 1
+            C_r = C_r+C;
+            a = a+1;
+        else
+            C_l = C_l+C;
+            b = b+1;
+        end
     end
 end
 
@@ -142,28 +143,31 @@ fp_l = [];
 for i = 1:length(mrk.pos)
     
     % One trial data
-    E = cnt_c(:,mrk.pos(1,i):mrk.pos(1,i)+chunk);
-    
-    %     % Centering
-    %     Means = mean(E,2);
-    %     E = E - diag(Means)*ones(size(E,1),size(E,2));    
-    
-    % Project data using calculated spatial filter
-    Z = P'*E;
-    
-    % Feature vector
-    tmp_ind = size(Z,1);
-    Z_reduce = [Z(1:m,:); Z(tmp_ind-(m-1):tmp_ind,:)];
-    var_vector = var(Z_reduce,0,2)';
-    var_vector = (1/sum(var_vector))*var_vector;
-    
-    fp = log(var_vector);
-    fp = fp';
-    
-    if mrk.y(1,i) == 1
-        fp_r = [fp_r fp];
-    else
-        fp_l = [fp_l fp];
+    for k = 1:2
+        E = cnt_c(:,mrk.pos(1,i)+chunk*(k-1):mrk.pos(1,i)+chunk*k);
+        
+        
+        %     % Centering
+        %     Means = mean(E,2);
+        %     E = E - diag(Means)*ones(size(E,1),size(E,2));
+        
+        % Project data using calculated spatial filter
+        Z = P'*E;
+        
+        % Feature vector
+        tmp_ind = size(Z,1);
+        Z_reduce = [Z(1:m,:); Z(tmp_ind-(m-1):tmp_ind,:)];
+        var_vector = var(Z_reduce,0,2)';
+        var_vector = (1/sum(var_vector))*var_vector;
+        
+        fp = log(var_vector);
+        fp = fp';
+        
+        if mrk.y(1,i) == 1
+            fp_r = [fp_r fp];
+        else
+            fp_l = [fp_l fp];
+        end
     end
 end
 end

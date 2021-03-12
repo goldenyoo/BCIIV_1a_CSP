@@ -79,9 +79,11 @@ end
 X_train = [fp_l';fp_r'];
 Y_train = [repmat(-1,length(fp_l),1); repmat(1,length(fp_l),1)];
 
-Mdl = fitcsvm(X_train, Y_train);
+Mdl = fitcnb(X_train, Y_train);
+% Mdl = fitcdiscr(X_train, Y_train);
+% Mdl = fitcsvm(X_train, Y_train);
 % Mdl = fitcsvm(X_train, Y_train,'Crossval','on');
-CVMdl = crossval(Mdl);
+% CVMdl = crossval(Mdl);
 
 
 %%
@@ -93,7 +95,7 @@ checks = [];
 
 % For class 1
 iter = 1;
-chunk = 300;
+chunk = 200;
 while iter + chunk <= size(cnt_c,2)
 %     if rem(iter,10000)== 0 
 %         fprintf("%d",iter)
@@ -112,7 +114,7 @@ while iter + chunk <= size(cnt_c,2)
        
        
     % Run classifier
-    prediction = predict(CVMdl.Trained{order},fp);
+    prediction = predict(Mdl,fp);
     
     predictions = [predictions prediction];
     
