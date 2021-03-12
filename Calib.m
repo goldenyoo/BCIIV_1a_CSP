@@ -5,7 +5,7 @@
 %    Last Modified: 2020_01_27                           
 %                                                            
  % ----------------------------------------------------------------------- %
-function [Mr,Ml,Qr,Ql,P] = Calib(answer,ref)
+function [fp_l,fp_r,P] = Calib(answer,ref)
 
 % Input parameters
 data_label = string(answer(1,1));   
@@ -166,24 +166,6 @@ for i = 1:length(mrk.pos)
         fp_l = [fp_l fp];
     end
 end
-
-Mr = mean(fp_r,2);
-Ml = mean(fp_l,2);
-
-Qr = zeros(2*m);
-for i = 1:length(fp_r)
-    tmp = (fp_r(:,i) - Mr)*(fp_r(:,i) - Mr)';
-    Qr = Qr + tmp;
-end
-Qr = (1/(length(fp_r)-1))*Qr;
-
-Ql = zeros(2*m);
-for i = 1:length(fp_l)
-    tmp = (fp_l(:,i) - Ml)*(fp_l(:,i) - Ml)';
-    Ql = Ql + tmp;
-end
-Ql = (1/(length(fp_l)-1))*Ql;
-
 end
 % ----------------------------------------------------------------------- %
 %                               EOF

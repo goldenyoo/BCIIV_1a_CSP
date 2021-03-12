@@ -5,7 +5,7 @@
 %    Last Modified: 2020_01_27                           
 %                                                            
  % ----------------------------------------------------------------------- %
-function predictions = Eval(answer,Mr,Ml,Qr,Ql,P,ref)
+function predictions = Eval(answer,fp_l,fp_r,P,ref)
 data_label = string(answer(1,1));   
 m = double(string(answer(2,1))); % feature vector will have length (2m)
 low_f = double(string(answer(3,1))); % Low cutoff freq
@@ -76,6 +76,15 @@ for i = 1:size(cnt_c,1)
 end
 
 %% 
+X_train = [fp_l';fp_r'];
+Y_train = [repmat(-1,length(fp_l),1); repmat(1,length(fp_l),1)];
+
+Mdl = fitcsvm(X_train, Y_train);
+% Mdl = fitcsvm(X_train, Y_train,'Crossval','on');
+CVMdl = crossval(Mdl);
+
+
+%%
 % f1 = figure;
 % f2 = figure;
 score = [];
@@ -100,11 +109,10 @@ while iter + chunk <= size(cnt_c,2)
     var_vector = (1/sum(var_vector))*var_vector;
         
     fp = log(var_vector);
-    fp = fp';
-    
+       
        
     % Run classifier
-    [check, prediction] = myClassifier(fp,Mr,Ml,Qr,Ql);
+    prediction = predict(CVMdl.Trained{order},fp);
     
     predictions = [predictions prediction];
     
