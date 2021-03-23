@@ -28,7 +28,7 @@ filt_ord = [10];
 
 
 % Reference electrode number
-ref = 29;        %%%%%%%%%%%%%%%%%%%%%%%%%%%%% Change
+ref = 33;        %%%%%%%%%%%%%%%%%%%%%%%%%%%%% Change
 
 %% CSP 
 for i = 1:length(ref_method)

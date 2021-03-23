@@ -19,7 +19,7 @@ order = double(string(answer(7,1))); % Filter order
 % Load file
 if sampling_rate == 0
     FILENAME = strcat('C:\Users\유승재\Desktop\Motor Imagery EEG data\BCICIV_1_mat\BCICIV_calib_ds1',data_label,'.mat');
-    chunk = 200;
+    chunk = 300;
     fs = 100;
 else
     FILENAME = strcat('C:\Users\유승재\Desktop\Motor Imagery EEG data\BCICIV_1calib_1000Hz_mat\BCICIV_calib_ds1',data_label,'_1000Hz.mat');
@@ -41,15 +41,15 @@ if referencing ~= 0
     
     % common average
     if referencing == 1        
-        cnt_c = cnt(3:55,:); % Exclude electrode (AF3, AF4, O1, O2, PO1, PO2)     
-        Means = (1/size(cnt_c,1))*sum(cnt_c);
+        cnt_c = cnt([27 29 31 44 46 50 52 54],:); % Exclude electrode (AF3, AF4, O1, O2, PO1, PO2)     
+        Means = (1/size(cnt,1))*sum(cnt);
         for i = 1 : size(cnt_c,1)
             cnt_c(i,:) = cnt_c(i,:) - Means; % CAR
         end
     % LAP
     elseif referencing == 2
         cnt_n = myLAP(cnt,nfo); % Laplacian
-        cnt_c = cnt_n(3:55,:); % Exclude electrode (AF3, AF4, O1, O2, PO1, PO2)
+        cnt_c = cnt_n([27 29 31 44 46 50 52 54],:); % Exclude electrode (AF3, AF4, O1, O2, PO1, PO2)
     end
 else
         %%% Calculate differential voltage
@@ -57,7 +57,7 @@ else
         cnt(i,:) = cnt(i,:) - cnt(ref,:);
     end
     
-    cnt_c = cnt(3:55,:); % Exclude electrode (AF3, AF4, O1, O2, PO1, PO2)
+    cnt_c = cnt([27 29 31 44 46 50 52 54],:); % Exclude electrode (AF3, AF4, O1, O2, PO1, PO2)
 end
 
 clear cnt cnt_n
@@ -80,7 +80,7 @@ C_r = zeros(size(cnt_c,1)); C_l = zeros(size(cnt_c,1));
 % Training only for training data set
 for i = 1:length(mrk.pos)
     
-    for k = 1:2
+    for k = 1
         E = cnt_c(:,mrk.pos(1,i)+chunk*(k-1):mrk.pos(1,i)+chunk*k);
         
         %Centering
@@ -143,7 +143,7 @@ fp_l = [];
 for i = 1:length(mrk.pos)
     
     % One trial data
-    for k = 1:2
+    for k = 1
         E = cnt_c(:,mrk.pos(1,i)+chunk*(k-1):mrk.pos(1,i)+chunk*k);
         
         
