@@ -39,18 +39,19 @@ if referencing ~= 0
     for i = 1 : size(cnt,1)
         cnt(i,:) = cnt(i,:) - cnt(ref,:);
     end
-
+    
     % common average
-    if referencing == 1         
-        cnt_c = cnt(3:55,:); % Exclude electrode (AF3, AF4, O1, O2, PO1, PO2)        
-        Means = (1/size(cnt_c,1))*sum(cnt_c);
+    if referencing == 1        
+        cnt_c = cnt; % Exclude electrode (AF3, AF4, O1, O2, PO1, PO2)     
+        Means = (1/size(cnt,1))*sum(cnt);
         for i = 1 : size(cnt_c,1)
             cnt_c(i,:) = cnt_c(i,:) - Means; % CAR
         end
-     % LAP   
-    elseif referencing == 2 
+        cnt_c = cnt_c([27 29 31 44 46 50 52 54],:);
+    % LAP
+    elseif referencing == 2
         cnt_n = myLAP(cnt,nfo); % Laplacian
-        cnt_c = cnt_n(3:55,:); % Exclude electrode (AF3, AF4, O1, O2, PO1, PO2)
+        cnt_c = cnt_n([27 29 31 44 46 50 52 54],:); % Exclude electrode (AF3, AF4, O1, O2, PO1, PO2)
     end
 else
         %%% Calculate differential voltage
@@ -58,7 +59,7 @@ else
         cnt(i,:) = cnt(i,:) - cnt(ref,:);
     end
     
-    cnt_c = cnt(3:55,:); % Exclude electrode (AF3, AF4, O1, O2, PO1, PO2)
+    cnt_c = cnt([27 29 31 44 46 50 52 54],:); % Exclude electrode (AF3, AF4, O1, O2, PO1, PO2)
 end
 
 clear cnt cnt_n
@@ -74,7 +75,11 @@ bpFilt = designfilt('bandpassiir','SampleRate',fs,'PassbandFrequency1',low_f, ..
 for i = 1:size(cnt_c,1)
     cnt_c(i,:) = filtfilt(bpFilt, cnt_c(i,:));
 end
+%%
+FILENAME = strcat('C:\Users\유승재\Desktop\Motor Imagery EEG data\true_labels\BCICIV_eval_ds1',data_label,'_1000Hz_true_y.mat');
+load(FILENAME);
 
+true_y = downsample(true_y,10);
 %% 
 % f1 = figure;
 % f2 = figure;
@@ -84,35 +89,31 @@ checks = [];
 
 % For class 1
 iter = 1;
-chunk = 300;
+chunk = 150;
+predictions = zeros(1,size(cnt_c,2));
+
 while iter + chunk <= size(cnt_c,2)
-%     if rem(iter,10000)== 0 
-%         fprintf("%d",iter)
-%     end
-    E = cnt_c(:, iter:iter+chunk);
-    Z = P'*E;
-    
-     % Feature vector
-    tmp_ind = size(Z,1);
-    Z_reduce = [Z(1:m,:); Z(tmp_ind-(m-1):tmp_ind,:)];
-   
-    var_vector = var(Z_reduce,0,2)';
-    var_vector = (1/sum(var_vector))*var_vector;
         
-    fp = log(var_vector);
-    fp = fp';
+    E = cnt_c(:, iter:iter+chunk-1);
     
-       
-    % Run classifier
+    for k = 1:3
+        Z = P'*E;
+        % Feature vector
+        tmp_ind = size(Z,1);
+        Z_reduce = [Z(1:m,:); Z(tmp_ind-(m-1):tmp_ind,:)];
+        var_vector = diag(Z_reduce*Z_reduce')/trace(Z_reduce*Z_reduce');
+        fp(:,k) = log(var_vector);
+    end
+    
     [check, prediction] = myClassifier(fp,Mr,Ml,Qr,Ql);
     
-    predictions = [predictions prediction];
+    prediction0 = true_y(iter);
     
-    iter = iter+1;
-       
+    for tmpp = iter:iter+chunk-1
+        predictions(:,tmpp) = [prediction];
+    end
+    iter = iter + chunk*0.8;
 end
-predictions = [predictions repmat(0,1,size(cnt_c,2)- iter + 1)];
-
 
 end
 % ----------------------------------------------------------------------- %

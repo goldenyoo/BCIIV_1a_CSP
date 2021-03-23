@@ -41,15 +41,16 @@ if referencing ~= 0
     
     % common average
     if referencing == 1        
-        cnt_c = cnt(3:55,:); % Exclude electrode (AF3, AF4, O1, O2, PO1, PO2)     
-        Means = (1/size(cnt_c,1))*sum(cnt_c);
+        cnt_c = cnt; % Exclude electrode (AF3, AF4, O1, O2, PO1, PO2)     
+        Means = (1/size(cnt,1))*sum(cnt);
         for i = 1 : size(cnt_c,1)
             cnt_c(i,:) = cnt_c(i,:) - Means; % CAR
         end
+        cnt_c = cnt_c([27 29 31 44 46 50 52 54],:);
     % LAP
     elseif referencing == 2
         cnt_n = myLAP(cnt,nfo); % Laplacian
-        cnt_c = cnt_n(3:55,:); % Exclude electrode (AF3, AF4, O1, O2, PO1, PO2)
+        cnt_c = cnt_n([27 29 31 44 46 50 52 54],:); % Exclude electrode (AF3, AF4, O1, O2, PO1, PO2)
     end
 else
         %%% Calculate differential voltage
@@ -57,7 +58,7 @@ else
         cnt(i,:) = cnt(i,:) - cnt(ref,:);
     end
     
-    cnt_c = cnt(3:55,:); % Exclude electrode (AF3, AF4, O1, O2, PO1, PO2)
+    cnt_c = cnt([27 29 31 44 46 50 52 54],:); % Exclude electrode (AF3, AF4, O1, O2, PO1, PO2)
 end
 
 clear cnt cnt_n
